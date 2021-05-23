@@ -48,7 +48,7 @@
 
 #if (defined EXT_BOARD_OLED1_XPLAINED_PRO)
 
-#define ENABLE_LCD
+//#define ENABLE_LCD
 
 #define WING_BUTTON_1 EXT1_PIN_9
 #define WING_BUTTON_2 EXT1_PIN_3

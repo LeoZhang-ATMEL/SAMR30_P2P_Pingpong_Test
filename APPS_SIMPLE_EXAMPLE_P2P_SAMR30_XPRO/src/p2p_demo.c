@@ -69,6 +69,10 @@ uint8_t msghandledemo = 0;
 /* Connection Table Memory */
 extern CONNECTION_ENTRY connectionTable[CONNECTION_SIZE];
 
+uint8_t cb_data[MAX_PAYLOAD];
+bool cb_role = false;
+bool test_back = false;
+
 /************************ FUNCTION DEFINITIONS ****************************************/
 /*********************************************************************
 * Function: static void dataConfcb(uint8_t handle, miwi_status_t status)
@@ -194,7 +198,17 @@ void run_p2p_demo(void)
             break;
         }
 #endif
-
+#if 1
+		if (test_back) {
+			test_back = 0;
+			uint16_t broadcastAddress = 0xFFFF;
+			uint8_t i;
+			for (i = 0; i < MAX_PAYLOAD; i++) {
+				cb_data[i] = i + 1;
+			}
+			MiApp_SendData(SHORT_ADDR_LEN, (uint8_t *)&broadcastAddress, 20, cb_data, msghandledemo++, true, dataConfcb);
+		}
+#endif
         uint8_t PressedButton = ButtonPressed();
         switch( PressedButton )
         {
@@ -206,8 +220,14 @@ void run_p2p_demo(void)
                 uint16_t broadcastAddress = 0xFFFF;
                 bool mac_ack_status;
 
+				uint8_t i;
+				for (i = 0; i < MAX_PAYLOAD; i++) {
+					cb_data[i] = i;
+				}
+				cb_role = true;
+				LED_Toggle(LED1);
                 /* Function MiApp_SendData is used to broadcast a message with address as 0xFFFF */
-                mac_ack_status = MiApp_SendData(SHORT_ADDR_LEN, (uint8_t *)&broadcastAddress, MIWI_TEXT_LEN, (uint8_t *)&MiWi[(TxSynCount%6)][0], msghandledemo++, true, dataConfcb);
+                mac_ack_status = MiApp_SendData(SHORT_ADDR_LEN, (uint8_t *)&broadcastAddress, 20, cb_data, msghandledemo++, true, dataConfcb);
                 if (mac_ack_status)
                 {
                     /* Update the bitmap count */
@@ -300,6 +320,18 @@ void run_p2p_demo(void)
 ********************************************************************/
 void ReceivedDataIndication (RECEIVED_MESSAGE *ind)
 {
+#if !defined(ENABLE_SLEEP_FEATURE)
+	/* Toggle LED2 to indicate receiving a packet */
+	LED_Toggle(LED0);
+#endif
+
+#if 1
+	if (rxMessage.Payload[0] == 0x00) {
+		test_back = true;
+	} else {
+		LED_Toggle(LED1);
+	}
+#else
 #if defined(ENABLE_CONSOLE)
     /* Print the received information via Console */
     DemoOutput_HandleMessage();
@@ -308,12 +340,8 @@ void ReceivedDataIndication (RECEIVED_MESSAGE *ind)
     /* Update the TX AND RX Counts on the display */
     DemoOutput_UpdateTxRx(TxNum, ++RxNum);
 
-#if !defined(ENABLE_SLEEP_FEATURE)
-    /* Toggle LED2 to indicate receiving a packet */
-    LED_Toggle(LED0);
-#endif
-
     /* Display the Instructions message */
     DemoOutput_Instruction();
+#endif
 }
 #endif
