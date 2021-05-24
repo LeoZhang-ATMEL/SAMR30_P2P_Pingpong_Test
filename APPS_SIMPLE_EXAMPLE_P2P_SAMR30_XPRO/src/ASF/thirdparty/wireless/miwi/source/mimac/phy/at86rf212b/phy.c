@@ -97,6 +97,8 @@ volatile int8_t phyRxRssi;
 PHY_ReservedFrameIndCallback_t phyReserveFrameIndCallback = NULL;
 #endif
 MiQueue_t phyTxQueue;
+uint8_t XAH_CTRL_1_reg_value, XAH_CTRL_0_reg_value;
+
 /*************************************************************************//**
 *****************************************************************************/
 /* PHY Data Req */
@@ -222,12 +224,32 @@ void PHY_Init(void)
 	(1 << TX_AUTO_CRC_ON) | (3 << SPI_CMD_MODE) |
 	(1 << IRQ_MASK_MODE));
 
-	/* BPSK-40-ALT - Proprietary - alternative spreading code*/
+	///* BPSK-40-ALT - Proprietary - alternative spreading code*/
+	//phyWriteRegister(TRX_CTRL_2_REG, (1 << RX_SAFE_MODE) | (1 << ALT_SPECTRUM) |
+	//(0 << BPSK_OQPSK) | (1 << SUB_MODE));
+	//phyWriteRegister(RF_CTRL_0_REG, PWR_BPSK_OFFSET);
+	///* Transmit power 3dbm for BPSK-40-ALT*/
+	//phyWriteRegister(PHY_TX_PWR_REG, TX_PWR);
+
+	/* Disable CSMA mode */
+	XAH_CTRL_1_reg_value = phyReadRegister(XAH_CTRL_1_REG);
+	XAH_CTRL_1_reg_value = XAH_CTRL_1_reg_value | (1 << CSMA_LBT_MODE);
+	phyWriteRegister(XAH_CTRL_1_REG, XAH_CTRL_1_reg_value);
+	
+	/* Disable CSMA retries & Frame Retries */
+	XAH_CTRL_0_reg_value = phyReadRegister(XAH_CTRL_0_REG);
+	XAH_CTRL_0_reg_value = XAH_CTRL_0_reg_value & 0x0F;		// Frame Retries set to 0
+	XAH_CTRL_0_reg_value = XAH_CTRL_0_reg_value | (7 << 1);	// CSMA Retries set to 7
+	phyWriteRegister(XAH_CTRL_0_REG, XAH_CTRL_0_reg_value);
+	XAH_CTRL_0_reg_value = phyReadRegister(XAH_CTRL_0_REG);
+	
+	/* OQPSK-1000 setting */
 	phyWriteRegister(TRX_CTRL_2_REG, (1 << RX_SAFE_MODE) | (1 << ALT_SPECTRUM) |
-	(0 << BPSK_OQPSK) | (1 << SUB_MODE));
-	phyWriteRegister(RF_CTRL_0_REG, PWR_BPSK_OFFSET);
-	/* Transmit power 3dbm for BPSK-40-ALT*/
-	phyWriteRegister(PHY_TX_PWR_REG, TX_PWR);
+	(1 << BPSK_OQPSK) | (1 << SUB_MODE) | (2 << OQPSK_DATA_RATE));
+	phyWriteRegister(RF_CTRL_0_REG, 2);
+	phyWriteRegister(PHY_TX_PWR_REG, 0xc1);
+	
+	phyModulation = phyReadRegister(TRX_CTRL_2_REG) & 0x3f;
 
 #if (defined(OTAU_ENABLED) && defined(OTAU_PHY_MODE))
 	/* Interrupt Handler Initialization */
@@ -472,7 +494,8 @@ static void phySetChannel(void)
 	}
 	else
 	{
-		phyModulation = PHY_MOD_BPSK40_CHAN_N;
+		//phyModulation = PHY_MOD_BPSK40_CHAN_N;
+		phyModulation = ((0x00) | (1<<SUB_MODE) | (1 << BPSK_OQPSK) | (1 << ALT_SPECTRUM));
 	}
 
 	phyWriteRegister(CC_CTRL_1_REG, phyBand);

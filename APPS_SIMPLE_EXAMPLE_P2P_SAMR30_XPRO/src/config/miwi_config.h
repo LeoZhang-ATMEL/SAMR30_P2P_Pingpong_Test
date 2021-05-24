@@ -45,7 +45,7 @@
 // ENABLE_CONSOLE will enable the print out on the hyper terminal
 // this definition is very helpful in the debugging process
 /*********************************************************************/
-#define ENABLE_CONSOLE
+// #define ENABLE_CONSOLE
 
 /*********************************************************************/
 // FRAME_COUNTER_UPDATE_INTERVAL defines the NVM update interval for
@@ -154,7 +154,7 @@
 // ENABLE_SECURITY will enable the device to encrypt and decrypt
 // information transferred
 /*********************************************************************/
-#define ENABLE_SECURITY
+//#define ENABLE_SECURITY
 
 
 /*********************************************************************/

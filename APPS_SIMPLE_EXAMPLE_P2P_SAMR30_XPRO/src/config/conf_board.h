@@ -43,8 +43,11 @@
 #define CONF_BOARD_AT86RFX
 
 #define MCU_SOC_NAME        "ATSAMR30G18A"
-
+#ifdef SPI_BAUDRATE_7500KBPS
+#define AT86RFX_SPI_BAUDRATE             7500000UL
+#else
 #define AT86RFX_SPI_BAUDRATE             4000000UL
+#endif
 
 #if (defined EXT_BOARD_OLED1_XPLAINED_PRO)
 
