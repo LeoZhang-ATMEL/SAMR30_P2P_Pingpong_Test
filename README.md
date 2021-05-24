@@ -9,9 +9,8 @@ Test enviroment by using two SAM R30 Xplained pro
 ![image](https://user-images.githubusercontent.com/20182981/119264448-d7747200-bc15-11eb-8cf3-0ee96a7d6896.png)
 
 
-20 bytes payload, sender to receiver spend 15ms, and receive back spend 116ms
-![image](https://user-images.githubusercontent.com/20182981/119264088-4a7ce900-bc14-11eb-8ed2-f86da9ec175d.png)
+20 bytes payload, sender to receiver spend 1.04ms, and receive back spend 2.08ms
+![image](https://user-images.githubusercontent.com/20182981/119370314-ba0fd880-bce7-11eb-825f-04e89f0f0af1.png)
 
-57 bytes payload, sender to receiver spend 23ms, and receive back spend 124ms
-![image](https://user-images.githubusercontent.com/20182981/119264039-23beb280-bc14-11eb-8aaa-2b9a0ccac338.png)
-
+99 bytes payload, sender to receiver spend 2.2ms, and receive back spend 4.4ms
+![image](https://user-images.githubusercontent.com/20182981/119370083-787f2d80-bce7-11eb-9611-5bfa090b4f8a.png)
