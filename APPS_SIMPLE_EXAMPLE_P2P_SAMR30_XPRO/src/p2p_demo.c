@@ -101,7 +101,7 @@ void run_p2p_demo(void)
 		test_back = 0;
 		uint16_t broadcastAddress = 0xFFFF;
 		cb_data[0] = 0x1;
-		MiApp_SendData(SHORT_ADDR_LEN, (uint8_t *)&broadcastAddress, 20, cb_data, msghandledemo++, true, dataConfcb);
+		MiApp_SendData(SHORT_ADDR_LEN, (uint8_t *)&broadcastAddress, MAX_PAYLOAD, cb_data, msghandledemo++, true, dataConfcb);
 	}
 
     uint8_t PressedButton = ButtonPressed();
@@ -119,7 +119,7 @@ void run_p2p_demo(void)
 			cb_role = true;
 			LED_Toggle(LED1);
             /* Function MiApp_SendData is used to broadcast a message with address as 0xFFFF */
-            mac_ack_status = MiApp_SendData(SHORT_ADDR_LEN, (uint8_t *)&broadcastAddress, 20, cb_data, msghandledemo++, false, dataConfcb);
+            mac_ack_status = MiApp_SendData(SHORT_ADDR_LEN, (uint8_t *)&broadcastAddress, MAX_PAYLOAD, cb_data, msghandledemo++, false, dataConfcb);
             if (mac_ack_status)
             {
                 /* Update the bitmap count */
