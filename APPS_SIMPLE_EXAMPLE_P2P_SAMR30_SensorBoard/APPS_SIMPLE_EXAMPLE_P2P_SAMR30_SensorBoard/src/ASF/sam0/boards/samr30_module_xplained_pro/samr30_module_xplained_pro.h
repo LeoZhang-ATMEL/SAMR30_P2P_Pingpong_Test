@@ -76,27 +76,20 @@ void system_board_init(void);
 
 /** \name LED0 definitions
  *  @{ */
-#define LED0_PIN                  PIN_PA14
+#define LED0_PIN                  PIN_PA27
 #define LED0_ACTIVE               false
 #define LED0_INACTIVE             !LED0_ACTIVE
 /** @} */
 
-/** \name LED1 definitions
- *  @{ */
-#define LED1_PIN                  PIN_PA18
-#define LED1_ACTIVE               false
-#define LED1_INACTIVE             !LED1_ACTIVE
-/** @} */
-
 /** \name SW0 definitions
  *  @{ */
-#define SW0_PIN                   PIN_PA07
+#define SW0_PIN                   PIN_PA28
 #define SW0_ACTIVE                false
 #define SW0_INACTIVE              !SW0_ACTIVE
-#define SW0_EIC_PIN               PIN_PA07A_EIC_EXTINT7
-#define SW0_EIC_MUX               MUX_PA07A_EIC_EXTINT7
-#define SW0_EIC_PINMUX            PINMUX_PA07A_EIC_EXTINT7
-#define SW0_EIC_LINE              7
+#define SW0_EIC_PIN               PIN_PA28A_EIC_EXTINT8
+#define SW0_EIC_MUX               MUX_PA28A_EIC_EXTINT8
+#define SW0_EIC_PINMUX            PINMUX_PA28A_EIC_EXTINT8
+#define SW0_EIC_LINE              8
 /** @} */
 
 /**
@@ -113,56 +106,11 @@ void system_board_init(void);
 #define LED0_GPIO                 LED0_PIN
 #define LED0                      LED0_PIN
 
-#define LED_0_PWM4CTRL_MODULE     TCC0
-#define LED_0_PWM4CTRL_CHANNEL    4
-#define LED_0_PWM4CTRL_OUTPUT     4
-#define LED_0_PWM4CTRL_PIN        PIN_PA14F_TCC0_WO4
-#define LED_0_PWM4CTRL_MUX        MUX_PA14F_TCC0_WO4
-#define LED_0_PWM4CTRL_PINMUX     PINMUX_PA14F_TCC0_WO4
-
-/** @} */
-
-/**
- * \name LED #1 definitions
- *
- * Wrapper macros for LED0, to ensure common naming across all Xplained Pro
- * boards.
- *
- *  @{ */
-#define LED_1_NAME                "LED1 (Green)"
-#define LED_1_PIN                 LED1_PIN
-#define LED_1_ACTIVE              LED1_ACTIVE
-#define LED_1_INACTIVE            LED1_INACTIVE
-#define LED1_GPIO                 LED1_PIN
-#define LED1                      LED1_PIN
-
-#define LED_1_PWM2CTRL_MODULE     TCC0
-#define LED_1_PWM2CTRL_CHANNEL    2
-#define LED_1_PWM2CTRL_OUTPUT     2
-#define LED_1_PWM2CTRL_PIN        PIN_PA18F_TCC0_WO2
-#define LED_1_PWM2CTRL_MUX        MUX_PA18F_TCC0_WO2
-#define LED_1_PWM2CTRL_PINMUX     PINMUX_PA18F_TCC0_WO2
-
 /** @} */
 
 /** Number of on-board LEDs */
-#define LED_COUNT                 2
+#define LED_COUNT                 1
 
-
-/**
- * \name Serial flash definitions
- *
- * On board Serial flash definitions.
- *
- *  @{ */
-#define SERIALFLASH_SPI_MODULE       SERCOM1
-#define SERIALFLASH_SPI_MUX_SETTING  SPI_SIGNAL_MUX_SETTING_E
-#define SERIALFLASH_SPI_PINMUX_PAD0  PINMUX_PA16C_SERCOM1_PAD0
-#define SERIALFLASH_SPI_PINMUX_PAD1  PINMUX_UNUSED
-#define SERIALFLASH_SPI_PINMUX_PAD2  PINMUX_PA18C_SERCOM1_PAD2
-#define SERIALFLASH_SPI_PINMUX_PAD3  PINMUX_PA19C_SERCOM1_PAD3
-#define SERIALFLASH_SPI_CS PIN_PA27
-/** @} */
 
 /**
  * \name Button #0 definitions

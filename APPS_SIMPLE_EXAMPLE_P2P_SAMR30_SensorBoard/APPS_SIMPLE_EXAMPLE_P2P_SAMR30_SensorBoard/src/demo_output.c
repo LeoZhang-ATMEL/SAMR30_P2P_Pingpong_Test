@@ -333,7 +333,6 @@ void STAR_DEMO_OPTIONS_MESSAGE(bool NetworkRole)
 
 uint8_t ButtonPressed(void)
 {
-#if (BOARD == SAMR21_XPLAINED_PRO) || (BOARD == SAMR21ZLL_EK) || (BOARD == SAMR30_XPLAINED_PRO)
     MIWI_TICK tickDifference;
     if(!port_pin_get_input_level(BUTTON_0_PIN))
     {
@@ -345,19 +344,6 @@ uint8_t ButtonPressed(void)
             return 1;
         }
     }
-#if ((BOARD == SAMR21_XPLAINED_PRO) && (defined EXT_BOARD_OLED1_XPLAINED_PRO)) || \
-          ((BOARD == SAMR30_XPLAINED_PRO) && (defined EXT_BOARD_OLED1_XPLAINED_PRO))
-    else if(!port_pin_get_input_level(WING_BUTTON_1))
-    {
-	    //if the button was previously not pressed
-	    if(PUSH_BUTTON_pressed == false)
-	    {
-		    PUSH_BUTTON_pressed = true;
-		    PUSH_BUTTON_press_time.Val = MiWi_TickGet();
-		    return 2;
-	    }
-    }
-#endif	
     else
     {
         //get the current time
@@ -373,7 +359,6 @@ uint8_t ButtonPressed(void)
             PUSH_BUTTON_pressed = false;
         }
     }
-#endif
     return 0;
 }
 

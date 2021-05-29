@@ -45,7 +45,7 @@
 // ENABLE_CONSOLE will enable the print out on the hyper terminal
 // this definition is very helpful in the debugging process
 /*********************************************************************/
-#define ENABLE_CONSOLE
+// #define ENABLE_CONSOLE
 
 /*********************************************************************/
 // FRAME_COUNTER_UPDATE_INTERVAL defines the NVM update interval for
@@ -79,13 +79,13 @@
 // TX_BUFFER_SIZE defines the maximum size of application payload
 // which is to be transmitted
 /*********************************************************************/
-#define TX_BUFFER_SIZE 40
+#define TX_BUFFER_SIZE 99
 
 /*********************************************************************/
 // RX_BUFFER_SIZE defines the maximum size of application payload
 // which is to be received
 /*********************************************************************/
-#define RX_BUFFER_SIZE 40
+#define RX_BUFFER_SIZE 99
 
 /*********************************************************************/
 // MY_PAN_ID defines the PAN identifier. Use 0xFFFF if prefer a 
@@ -154,7 +154,7 @@
 // ENABLE_SECURITY will enable the device to encrypt and decrypt
 // information transferred
 /*********************************************************************/
-#define ENABLE_SECURITY
+//#define ENABLE_SECURITY
 
 
 /*********************************************************************/

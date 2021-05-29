@@ -171,7 +171,7 @@ typedef union
 
 #endif
 
-#define MAX_PAYLOAD                 76
+#define MAX_PAYLOAD                 99
 
 /************************ Type Definitions **************************************/
 /* State of the P2PSTAR stack */
