@@ -64,12 +64,7 @@
 #endif
 
 /************************** DEFINITIONS **********************************/
-#if (BOARD == SAMR21ZLL_EK)
-#define NVM_UID_ADDRESS   ((volatile uint16_t *)(0x00804008U))
-#endif
-#if (BOARD == SAMR30_MODULE_XPLAINED_PRO) || (BOARD == SAMR21B18_MODULE) || (BOARD == SAMR21G18_MODULE)
 #define NVM_UID_ADDRESS   ((volatile uint16_t *)(0x0080400AU))
-#endif
 
 /************************** PROTOTYPES **********************************/
 void ReadMacAddress(void);
@@ -178,18 +173,10 @@ int main ( void )
 **********************************************************************/
 void ReadMacAddress(void)
 {
-#if ((BOARD == SAMR21ZLL_EK) || (BOARD == SAMR30_MODULE_XPLAINED_PRO) || (BOARD == SAMR21B18_MODULE) || (BOARD == SAMR21G18_MODULE))
    uint8_t i = 0, j = 0;
    for (i = 0; i < 8; i += 2, j++)
    {
      myLongAddress[i] = (NVM_UID_ADDRESS[j] & 0xFF);
      myLongAddress[i + 1] = (NVM_UID_ADDRESS[j] >> 8);
    }
-#elif ((BOARD == SAMR30_XPLAINED_PRO) || (BOARD == SAMR21_XPLAINED_PRO))
-   uint8_t* peui64 = edbg_eui_read_eui64();
-    for(uint8_t k=0; k<MY_ADDRESS_LENGTH; k++)
-   {
-        myLongAddress[k] = peui64[MY_ADDRESS_LENGTH-k-1];
-   }
-#endif
 }

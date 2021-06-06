@@ -1,7 +1,7 @@
 /**
  * \file
  *
- * \brief SAM R30 Module Xplained Pro board definition
+ * \brief SAM R30 Module Sensor board definition
  *
  * Copyright (c) 2018 Microchip Technology Inc. and its subsidiaries.
  *
@@ -34,8 +34,8 @@
  * Support and FAQ: visit <a href="https://www.microchip.com/support/">Microchip Support</a>
  */
 
-#ifndef SAMR30_MODULE_XPLAINED_PRO_H_INCLUDED
-#define SAMR30_MODULE_XPLAINED_PRO_H_INCLUDED
+#ifndef SAMR30_MODULE_SENSOR_BOARD_H_INCLUDED
+#define SAMR30_MODULE_SENSOR_BOARD_H_INCLUDED
 
 #include <conf_board.h>
 #include <compiler.h>
@@ -62,7 +62,7 @@ void system_board_init(void);
  */
 
 /** Name string macro */
-#define BOARD_NAME                "SAMR30_MODULE_XPLAINED_PRO"
+#define BOARD_NAME                "SAMR30_MODULE_SENSOR_BOARD"
 
 /** \name Resonator definitions
  *  @{ */
@@ -106,7 +106,15 @@ void system_board_init(void);
 #define LED0_GPIO                 LED0_PIN
 #define LED0                      LED0_PIN
 
+#define LED_0_PWM4CTRL_MODULE     TCC0
+#define LED_0_PWM4CTRL_CHANNEL    4
+#define LED_0_PWM4CTRL_OUTPUT     4
+#define LED_0_PWM4CTRL_PIN        PIN_PA14F_TCC0_WO4
+#define LED_0_PWM4CTRL_MUX        MUX_PA14F_TCC0_WO4
+#define LED_0_PWM4CTRL_PINMUX     PINMUX_PA14F_TCC0_WO4
+
 /** @} */
+
 
 /** Number of on-board LEDs */
 #define LED_COUNT                 1
@@ -132,46 +140,39 @@ void system_board_init(void);
 /** Number of on-board buttons */
 #define BUTTON_COUNT 1
 
-/** \name Extension header pin definitions
+/** \name MikroBus J1 and J2 header pin definitions
  *  @{
  */
-#define EXT_PIN_3                PIN_PA06
-#define EXT_PIN_4                UNUSED
-#define EXT_PIN_5                PIN_PA14
-#define EXT_PIN_6                UNUSED
-#define EXT_PIN_7                UNUSED
-#define EXT_PIN_8                UNUSED
-#define EXT_PIN_9                PIN_PA06
-#define EXT_PIN_10               PIN_PA28
-#define EXT_PIN_11               PIN_PA08
-#define EXT_PIN_12               PIN_PA09
-#define EXT_PIN_13               PIN_PA14
-#define EXT_PIN_14               PIN_PA15
-#define EXT_PIN_15               PIN_PA17
-#define EXT_PIN_16               PIN_PA18
-#define EXT_PIN_17               PIN_PA16
-#define EXT_PIN_18               PIN_PA19
+#define EXT_PIN_1                PIN_PA06
+#define EXT_PIN_2                PIN_PA15
+#define EXT_PIN_3                PIN_PA17
+#define EXT_PIN_4                PIN_PA19
+#define EXT_PIN_5                PIN_PA16
+#define EXT_PIN_6                PIN_PA18
+
+#define EXT_PIN_9                PIN_PA14
+#define EXT_PIN_10               PIN_PA07
+#define EXT_PIN_11               PIN_PA25
+#define EXT_PIN_12               PIN_PA24
+#define EXT_PIN_13               PIN_PA09
+#define EXT_PIN_14               PIN_PA08
 /** @} */
 
 /** \name Extension header pin definitions by function
  *  @{
  */
-#define EXT_PIN_ADC_0            EXT_PIN_3
-#define EXT_PIN_ADC_1            EXT_PIN_4
-#define EXT_PIN_GPIO_0           EXT_PIN_5
-#define EXT_PIN_GPIO_1           EXT_PIN_6
-#define EXT_PIN_PWM_0            EXT_PIN_7
-#define EXT_PIN_PWM_1            EXT_PIN_8
-#define EXT_PIN_IRQ              EXT_PIN_9
-#define EXT_PIN_I2C_SDA          EXT_PIN_11
-#define EXT_PIN_I2C_SCL          EXT_PIN_12
-#define EXT_PIN_UART_RX          EXT_PIN_13
-#define EXT_PIN_UART_TX          EXT_PIN_14
-#define EXT_PIN_SPI_SS_1         EXT_PIN_10  
-#define EXT_PIN_SPI_SS_0         EXT_PIN_15  
-#define EXT_PIN_SPI_MOSI         EXT_PIN_16
-#define EXT_PIN_SPI_MISO         EXT_PIN_17
-#define EXT_PIN_SPI_SCK          EXT_PIN_18
+#define EXT_PIN_ADC_0            EXT_PIN_1
+#define EXT_PIN_GPIO_0           EXT_PIN_2
+#define EXT_PIN_PWM_0            EXT_PIN_9
+#define EXT_PIN_IRQ              EXT_PIN_10
+#define EXT_PIN_I2C_SDA          EXT_PIN_14
+#define EXT_PIN_I2C_SCL          EXT_PIN_13
+#define EXT_PIN_UART_RX          EXT_PIN_11
+#define EXT_PIN_UART_TX          EXT_PIN_12
+#define EXT_PIN_SPI_SS_0         EXT_PIN_3
+#define EXT_PIN_SPI_MOSI         EXT_PIN_6
+#define EXT_PIN_SPI_MISO         EXT_PIN_5
+#define EXT_PIN_SPI_SCK          EXT_PIN_4
 /** @} */
 
 /** \name Extension header ADC definitions
@@ -200,10 +201,10 @@ void system_board_init(void);
  *  @{
  */
 #define EXT_IRQ_MODULE           EIC
-#define EXT_IRQ_INPUT            6
-#define EXT_IRQ_PIN              PIN_PA06A_EIC_EXTINT6
-#define EXT_IRQ_MUX              MUX_PA06A_EIC_EXTINT6
-#define EXT_IRQ_PINMUX           PINMUX_PA06A_EIC_EXTINT6
+#define EXT_IRQ_INPUT            7
+#define EXT_IRQ_PIN              PIN_PA07A_EIC_EXTINT7
+#define EXT_IRQ_MUX              MUX_PA07A_EIC_EXTINT7
+#define EXT_IRQ_PINMUX           PINMUX_PA07A_EIC_EXTINT7
 /** @} */
 
 /** \name Extension header I2C definitions
@@ -219,14 +220,14 @@ void system_board_init(void);
 /** \name Extension header UART definitions
  *  @{
  */
-#define EXT_UART_MODULE              SERCOM2
+#define EXT_UART_MODULE              SERCOM3
 #define EXT_UART_SERCOM_MUX_SETTING  USART_RX_3_TX_2_XCK_3
 #define EXT_UART_SERCOM_PINMUX_PAD0  PINMUX_UNUSED
 #define EXT_UART_SERCOM_PINMUX_PAD1  PINMUX_UNUSED
-#define EXT_UART_SERCOM_PINMUX_PAD2  PINMUX_PA14C_SERCOM2_PAD2
-#define EXT_UART_SERCOM_PINMUX_PAD3  PINMUX_PA15C_SERCOM2_PAD3
-#define EXT_UART_SERCOM_DMAC_ID_TX   SERCOM2_DMAC_ID_TX
-#define EXT_UART_SERCOM_DMAC_ID_RX   SERCOM2_DMAC_ID_RX
+#define EXT_UART_SERCOM_PINMUX_PAD2  PINMUX_PA24C_SERCOM3_PAD2
+#define EXT_UART_SERCOM_PINMUX_PAD3  PINMUX_PA25C_SERCOM3_PAD3
+#define EXT_UART_SERCOM_DMAC_ID_TX   SERCOM3_DMAC_ID_TX
+#define EXT_UART_SERCOM_DMAC_ID_RX   SERCOM3_DMAC_ID_RX
 /** @} */
 
 /** \ Temperature sensor definitions
@@ -234,10 +235,10 @@ void system_board_init(void);
  */
 #define TEMPERATURE_SENSOR_I2C_MODULE              SERCOM0
 #define TEMPERATURE_ALERT_IRQ_MODULE               EIC
-#define TEMPERATURE_ALERT_IRQ_INPUT                8
-#define TEMPERATURE_ALERT_IRQ_PIN                  PIN_PA28A_EIC_EXTINT8
-#define TEMPERATURE_ALERT_IRQ_MUX                  MUX_PA28A_EIC_EXTINT8
-#define TEMPERATURE_ALERT_IRQ_PINMUX               PINMUX_PA28A_EIC_EXTINT8
+#define TEMPERATURE_ALERT_IRQ_INPUT                7
+#define TEMPERATURE_ALERT_IRQ_PIN                  PIN_PA07A_EIC_EXTINT7
+#define TEMPERATURE_ALERT_IRQ_MUX                  MUX_PA07A_EIC_EXTINT7
+#define TEMPERATURE_ALERT_IRQ_PINMUX               PINMUX_PA07A_EIC_EXTINT7
 #define TEMPERATURE_SENSOR_SDA                     EXT_I2C_SERCOM_PINMUX_PAD0
 #define TEMPERATURE_SENSOR_SCL                     EXT_I2C_SERCOM_PINMUX_PAD1
 #define TEMPERATURE_SENSOR_I2C_SERCOM_DMAC_ID_TX   SERCOM0_DMAC_ID_TX
@@ -256,19 +257,6 @@ void system_board_init(void);
 #define EXT_SPI_SERCOM_PINMUX_PAD3  PINMUX_PA19C_SERCOM1_PAD3
 #define EXT_SPI_SERCOM_DMAC_ID_TX   SERCOM1_DMAC_ID_TX
 #define EXT_SPI_SERCOM_DMAC_ID_RX   SERCOM1_DMAC_ID_RX
-/** @} */
-
-/** \name Embedded debugger CDC Gateway USART interface definitions
- * @{
- */
-#define CDC_MODULE              SERCOM3
-#define CDC_SERCOM_MUX_SETTING  USART_RX_3_TX_2_XCK_3
-#define CDC_SERCOM_PINMUX_PAD0  PINMUX_UNUSED
-#define CDC_SERCOM_PINMUX_PAD1  PINMUX_UNUSED
-#define CDC_SERCOM_PINMUX_PAD2  PINMUX_PA24C_SERCOM3_PAD2
-#define CDC_SERCOM_PINMUX_PAD3  PINMUX_PA25C_SERCOM3_PAD3
-#define CDC_SERCOM_DMAC_ID_TX   SERCOM3_DMAC_ID_TX
-#define CDC_SERCOM_DMAC_ID_RX   SERCOM3_DMAC_ID_RX
 /** @} */
 
 #define RF_SPI_MODULE              SERCOM4
@@ -372,4 +360,4 @@ void system_board_init(void);
 }
 #endif
 
-#endif  /* SAMR30_MODULE_XPLAINED_PRO_H_INCLUDED */
+#endif  /* SAMR30_MODULE_SENSOR_BOARD_H_INCLUDED */

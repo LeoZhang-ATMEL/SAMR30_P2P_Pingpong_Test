@@ -56,6 +56,11 @@ void system_board_init(void)
 	port_pin_set_config(LED_0_PIN, &pin_conf);
 	port_pin_set_output_level(LED_0_PIN, LED_0_INACTIVE);
 
+	/* Configure PWM as outputs, turn them off */
+	pin_conf.direction  = PORT_PIN_DIR_OUTPUT;
+	port_pin_set_config(EXT_PIN_PWM_0, &pin_conf);
+	port_pin_set_output_level(EXT_PIN_PWM_0, LED_0_INACTIVE);
+
 	/* Set buttons as inputs */
 	pin_conf.direction  = PORT_PIN_DIR_INPUT;
 	pin_conf.input_pull = PORT_PIN_PULL_UP;
