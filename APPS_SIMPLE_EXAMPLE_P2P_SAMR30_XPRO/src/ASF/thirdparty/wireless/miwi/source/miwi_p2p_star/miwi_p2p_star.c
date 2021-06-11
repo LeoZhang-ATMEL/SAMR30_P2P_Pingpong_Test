@@ -121,7 +121,9 @@ typedef struct _TxFrame_t
 } TxFrame_t;
 
 /********************* Global and Static Variables *************************************/
-
+#ifdef MIWI_AT_CMD
+extern uint16_t myPAN_ID;		//use variable to replace macro
+#endif
 /* The PAN Identifier for the device */
 API_UINT16_UNION  myPANID;
 
@@ -325,7 +327,11 @@ miwi_status_t MiApp_ProtocolInit(defaultParametersRomOrRam_t *defaultRomOrRamPar
         p2pStarCurrentState = INIT_STATE;
 
         /* Initialize PANID */
+#ifdef MIWI_AT_CMD
+		myPANID.Val = myPAN_ID;
+#else		
         myPANID.Val = MY_PAN_ID;
+#endif
 
 #if defined(ENABLE_NETWORK_FREEZER)
     for(i = 0; i < CONNECTION_SIZE; i++)
@@ -972,7 +978,11 @@ bool MiApp_StartConnection(uint8_t Mode, uint8_t ScanDuration, uint32_t ChannelM
 #if MY_PAN_ID == 0xFFFF
             myPANID.Val = PHY_RandomReq();
 #else
+		#ifdef MIWI_AT_CMD
+			myPANID.Val = myPAN_ID;
+		#else
             myPANID.Val = MY_PAN_ID;
+		#endif
 #endif
 
             MiMAC_SetAltAddress((uint8_t *)&tmp, (uint8_t *)&myPANID.Val);
@@ -1009,7 +1019,11 @@ bool MiApp_StartConnection(uint8_t Mode, uint8_t ScanDuration, uint32_t ChannelM
 #if MY_PAN_ID == 0xFFFF
             myPANID.Val = PHY_RandomReq();
 #else
+		#ifdef MIWI_AT_CMD
+			myPANID.Val = myPAN_ID;
+		#else
             myPANID.Val = MY_PAN_ID;
+		#endif
 #endif
             /* Set Short Address and PAN ID */
             MiMAC_SetAltAddress((uint8_t *)&tmp, (uint8_t *)&myPANID.Val);

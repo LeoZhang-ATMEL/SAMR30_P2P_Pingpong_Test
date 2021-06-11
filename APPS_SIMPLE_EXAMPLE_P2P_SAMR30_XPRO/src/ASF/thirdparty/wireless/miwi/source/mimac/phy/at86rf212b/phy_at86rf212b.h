@@ -77,7 +77,7 @@
 /* PHY_TX_PWR */
 #define PA_BOOST          7
 #define GC_PA             5
-#define TX_PWR            0
+#define TX_PWR            0xC0
 
 /* PHY_RSSI */
 #define RX_CRC_VALID      7
@@ -108,7 +108,11 @@
 
 #define PHY_MOD_BPSK20_CHAN_0   (0x00) //((0x00) || (0<<SUB_MODE) || (0 << BPSK_OQPSK) || (0 << ALT_SPECTRUM))
 #define PHY_MOD_BPSK40_CHAN_N	(0x04) //((0x00) || (1<<SUB_MODE) || (0 << BPSK_OQPSK) || (0 << ALT_SPECTRUM))
+#ifndef OQPSK_CHINA_780
 #define PWR_BPSK_OFFSET			(0x03)
+#else
+#define PWR_BPSK_OFFSET			(0x02)
+#endif
 
 /* ANT_DIV */
 #define ANT_SEL           7 /* Only in AT86RF212B */

@@ -90,6 +90,7 @@ void sio2host_init(void)
 	host_uart_config.pinmux_pad2 = HOST_SERCOM_PINMUX_PAD2;
 	host_uart_config.pinmux_pad3 = HOST_SERCOM_PINMUX_PAD3;
 	host_uart_config.baudrate    = USART_HOST_BAUDRATE;
+	host_uart_config.generator_source = GCLK_GENERATOR_2;
 	stdio_serial_init(&host_uart_module, USART_HOST, &host_uart_config);
 	usart_enable(&host_uart_module);
 	/* Enable transceivers */

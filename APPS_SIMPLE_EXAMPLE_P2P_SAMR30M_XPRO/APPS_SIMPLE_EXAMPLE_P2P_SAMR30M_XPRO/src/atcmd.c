@@ -872,7 +872,7 @@ void ATCmdTask(void)
 	if(reboot_reported == 0)
 	{
 		reboot_reported = 1;
-		sio2host_tx((uint8_t *)StrREBOOT, sizeof(StrAOK));
+		sio2host_tx((uint8_t *)StrREBOOT, sizeof(StrREBOOT));
 	}
 	if ((bytes = sio2host_rx(at_rx_data, AT_RX_BUF_SIZE)) > 0) {
 		if(enable_echo)
