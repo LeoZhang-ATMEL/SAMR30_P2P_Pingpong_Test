@@ -26,7 +26,10 @@ measure the [SAMR30M Sensor Board](https://www.microchip.com/DevelopmentTools/Pr
 AT Command Test, Node A(COM18) send 99 bytes to Node B(COM19)
 `send 09cb37feff19276a 0 01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678`
 ![image](https://user-images.githubusercontent.com/20182981/121676446-388db800-cae7-11eb-8d49-a36ce6a83b63.png)
-
 ![image](https://user-images.githubusercontent.com/20182981/121676347-198f2600-cae7-11eb-9ad9-8330f95d82c0.png)
+
+
+AT Command examples, Node A(COM18) was the this device is the first device, who is starting the network. Node B(COM19) was the join device.
+![image](https://user-images.githubusercontent.com/20182981/121678612-f6b24100-cae9-11eb-9ae5-eb20a428ff22.png)
 
 
