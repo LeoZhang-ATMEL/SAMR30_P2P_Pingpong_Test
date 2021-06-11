@@ -20,3 +20,13 @@ Test enviroment by using two [SAMR30M Sensor Board](https://www.microchip.com/De
 99 bytes payload with enable CSMA, pingpong time spend 4.6ms to 8.8ms,
 measure the [SAMR30M Sensor Board](https://www.microchip.com/DevelopmentTools/ProductDetails/PartNO/DT100130) J2-PIN1, the pin will toggled when send out the package and toggle again when receive the echo package.
 ![image](https://user-images.githubusercontent.com/20182981/120910112-987efb80-c6ae-11eb-8b1c-86a27c385cd7.png)
+
+
+
+AT Command Test, Node A(COM18) send 99 bytes to Node B(COM19)
+`send 09cb37feff19276a 0 01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678`
+![image](https://user-images.githubusercontent.com/20182981/121676446-388db800-cae7-11eb-8d49-a36ce6a83b63.png)
+
+![image](https://user-images.githubusercontent.com/20182981/121676347-198f2600-cae7-11eb-9ad9-8330f95d82c0.png)
+
+
