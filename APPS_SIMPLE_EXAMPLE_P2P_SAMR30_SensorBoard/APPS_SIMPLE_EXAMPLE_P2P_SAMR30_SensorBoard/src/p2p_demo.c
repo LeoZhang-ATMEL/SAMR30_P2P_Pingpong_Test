@@ -127,7 +127,7 @@ void run_p2p_demo(void)
 			cb_data[0] = 0x00;
 			cb_role = true;
 			LED_Toggle(LED0);
-			LED_Toggle(LED1);
+			LED_Toggle(EXT_PIN_PWM_0);
             /* Function MiApp_SendData is used to broadcast a message with address as 0xFFFF */
             mac_ack_status = MiApp_SendData(SHORT_ADDR_LEN, (uint8_t *)&broadcastAddress, MAX_PAYLOAD, cb_data, msghandledemo++, false, dataConfcb);
             if (mac_ack_status)
@@ -157,7 +157,7 @@ void ReceivedDataIndication (RECEIVED_MESSAGE *ind)
 {
 	/* Toggle LED2 to indicate receiving a packet */
 	LED_Toggle(LED0);
-	LED_Toggle(LED1);
+	LED_Toggle(EXT_PIN_PWM_0);
 
 	if (rxMessage.Payload[0] == 0x00) {
 		test_back = true;

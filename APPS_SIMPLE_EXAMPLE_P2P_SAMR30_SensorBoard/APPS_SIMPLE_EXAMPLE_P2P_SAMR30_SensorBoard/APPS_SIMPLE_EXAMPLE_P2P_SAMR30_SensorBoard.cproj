@@ -561,7 +561,9 @@
       <Value>PHY_AT86RF212B</Value>
       <Value>ENABLE_NETWORK_FREEZER</Value>
       <Value>MAIN_CLK_DFLL48M</Value>
+      <Value>SPI_BAUDRATE_7500KBPS</Value>
       <Value>OQPSK_CHINA_780</Value>
+      <Value>MIWI_AT_CMD</Value>
     </ListValues>
   </armgcc.compiler.symbols.DefSymbols>
   <armgcc.compiler.directories.IncludePaths>
@@ -1576,6 +1578,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\ASF\thirdparty\wireless\services\trx_access\trx_access.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\atcmd.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\atcmd.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\demo_output.c">

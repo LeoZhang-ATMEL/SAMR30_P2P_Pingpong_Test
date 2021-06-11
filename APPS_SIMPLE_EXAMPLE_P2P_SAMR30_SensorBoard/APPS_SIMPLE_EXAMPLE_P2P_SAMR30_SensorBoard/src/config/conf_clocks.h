@@ -165,7 +165,7 @@ SYSTEM_CLOCK_DFLL_LOOP_MODE_OPEN
 #endif
 
 /* Configure GCLK generator 2  */
-#  define CONF_CLOCK_GCLK_2_ENABLE                false
+#  define CONF_CLOCK_GCLK_2_ENABLE                true
 #  define CONF_CLOCK_GCLK_2_RUN_IN_STANDBY        false
 #  define CONF_CLOCK_GCLK_2_CLOCK_SOURCE          SYSTEM_CLOCK_SOURCE_OSC16M
 #  define CONF_CLOCK_GCLK_2_PRESCALER             1
