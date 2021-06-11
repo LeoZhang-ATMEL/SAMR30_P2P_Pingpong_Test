@@ -89,7 +89,9 @@ defaultParametersRamOnly_t defaultParamsRamOnly = {
     .dummy = 0,
 };
 extern API_UINT16_UNION  myPANID;
-
+#ifdef MIWI_AT_CMD
+extern bool manual_establish_network;
+#endif
 /*************************************************************************/
 // The variable myChannel defines the channel that the device
 // is operate on. This variable will be only effective if energy scan
@@ -114,6 +116,7 @@ uint8_t myChannel = 8;
 *
 * Return:  true if network freezer to be used for restoring
 ********************************************************************/
+#ifndef MIWI_AT_CMD	//remove it	
 bool freezer_feature(void)
 {
     MIWI_TICK tick1, tick2;
@@ -141,7 +144,7 @@ bool freezer_feature(void)
     }
     return false;
 }
-
+#endif	//remove
 /*********************************************************************
 * Function: static void longAddressValidationAndUpdation(void)
 *
@@ -196,7 +199,11 @@ bool startNetwork = false;
 *           or MiApp_EstablishConnection procedure completes
 * Parameter: status of the completed operation
 ********************************************************************/
+#ifndef MIWI_AT_CMD
 static void Connection_Confirm(miwi_status_t status)
+#else
+void Connection_Confirm(miwi_status_t status)
+#endif
 {
     /* If success or already exists status, update the LED,CONSOLE,LCD
        and show the demo instruction for the user to proceed */
@@ -210,24 +217,39 @@ static void Connection_Confirm(miwi_status_t status)
 
         if (!startNetwork)
         {
+#ifndef MIWI_AT_CMD	//remove it				
             DemoOutput_Channel(myChannel, 1);
+#endif	//remove			
         }
         else
         {
+#ifndef MIWI_AT_CMD	//remove it					
             printf("\r\nStarted Wireless Communication on Channel ");
             printf("%u",currentChannel);
             printf("\r\n");
+#endif	//remove			
         }
+#ifndef MIWI_AT_CMD	//remove it	>>
         DemoOutput_Instruction();
+
 #if defined(ENABLE_CONSOLE)
         DumpConnection(0xFF);
 #endif
+#endif	//remove <<
     }
     else
     {
+#ifdef MIWI_AT_CMD
+		if(!manual_establish_network)
+		{
+			startNetwork = true;
+			MiApp_StartConnection(START_CONN_DIRECT, 10, (1L << myChannel), Connection_Confirm);
+		}
+#else	
         /* Upon EstablishConnection failure, initiate the startConnection to form a network */
         startNetwork = true;
         MiApp_StartConnection(START_CONN_DIRECT, 10, (1L << myChannel), Connection_Confirm);
+#endif			
     }
 }
 
@@ -254,6 +276,7 @@ bool Initialize_Demo(bool freezer_enable)
     /* Initialize the P2P and Star Protocol */
     if (MiApp_ProtocolInit(&defaultParamsRomOrRam, &defaultParamsRamOnly) == RECONNECTED)
     {
+#ifndef MIWI_AT_CMD	//remove it	>>		
         printf("\r\nPANID:");
         printf("%x",myPANID.v[1]);
         printf("%x",myPANID.v[0]);
@@ -264,6 +287,7 @@ bool Initialize_Demo(bool freezer_enable)
 #else
         STAR_DEMO_OPTIONS_MESSAGE (role);
 #endif
+#endif	//remove <<
         return true;
     }
     /* Unable to boot from the Network Freezer parameters, so initiate connection */
@@ -276,16 +300,31 @@ bool Initialize_Demo(bool freezer_enable)
     // Set default channel
     if( MiApp_Set(CHANNEL, &myChannel) == false )
     {
+#ifndef MIWI_AT_CMD	//remove it		
         DemoOutput_ChannelError(myChannel);
+#endif	//remove
         return false;
     }
 
+#ifndef MIWI_AT_CMD	//remove it		
     DemoOutput_Channel(myChannel, 0);
+#endif	
 
     startNetwork =  false;
 
+#ifdef MIWI_AT_CMD
+	if(!manual_establish_network)
+	{
+#endif		
     /* Try to establish a new connection with peer device by broadcast Connection Request */
     return MiApp_EstablishConnection(myChannel, 2, (uint8_t*)&broadcastAddr, 0, Connection_Confirm);
+#ifdef MIWI_AT_CMD	
+	}
+	else
+	{
+		return SUCCESS;
+	}
+#endif	
 }
 
 /*********************************************************************

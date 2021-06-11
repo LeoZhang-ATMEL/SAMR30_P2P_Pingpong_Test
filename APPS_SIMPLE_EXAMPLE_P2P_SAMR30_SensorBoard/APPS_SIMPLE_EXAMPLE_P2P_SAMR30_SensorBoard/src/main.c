@@ -54,6 +54,10 @@
 #include "asf.h"
 #include "sio2host.h"
 
+#ifdef MIWI_AT_CMD
+#include "atcmd.h"
+#endif
+
 #if defined(ENABLE_NETWORK_FREEZER)
 #include "pdsDataServer.h"
 #include "wlPdsTaskManager.h"
@@ -66,6 +70,11 @@
 /************************** DEFINITIONS **********************************/
 #define NVM_UID_ADDRESS   ((volatile uint16_t *)(0x0080400AU))
 
+#ifdef MIWI_AT_CMD
+uint8_t main_state = 0;	//0: configure mode, 1: demo init and running
+extern bool freezer_enable;
+extern uint16_t myPAN_ID;
+#endif
 /************************** PROTOTYPES **********************************/
 void ReadMacAddress(void);
 
@@ -100,7 +109,9 @@ void ReadMacAddress(void);
 **********************************************************************/
 int main ( void )
 {
+#ifndef MIWI_AT_CMD
     bool freezer_enable = false;
+#endif
     irq_initialize_vectors();
 
 #if SAMD || SAMR21 || SAML21 || SAMR30
@@ -121,38 +132,71 @@ int main ( void )
     sio2host_init();
 #endif
 
+#ifdef MIWI_AT_CMD
+	ATCmd_CmdInit();
+#endif
+
     // Read the MAC address from either flash or EDBG
     ReadMacAddress();
 
     // Initialize system Timer
     SYS_TimerInit();
 
+#ifndef MIWI_AT_CMD	//remove it
     // Demo Start Message
     DemoOutput_Greeting();
+#endif	//remove
 
-#if defined (CONF_BOARD_JOYSTICK)
+#ifndef MIWI_AT_CMD	//remove it >>
+#if defined (CONF_BOARD_JOYSTICK)	//undefined
     Joystick_Init();
 #endif
 
 #if (defined EXT_BOARD_OLED1_XPLAINED_PRO)
     Buttons_init();
 #endif
+#endif		//remove <<
 
 #if defined(ENABLE_NETWORK_FREEZER)
     SYS_TimerInit();
     nvm_init(INT_FLASH);
     PDS_Init();
+ #ifndef MIWI_AT_CMD	//remove it	
     demo_output_freezer_options();
     // User Selection to commission a network or use Freezer
     freezer_enable = freezer_feature();
+ #else		//remove
+	freezer_enable = false;	//AT command page init
+ #endif
 #endif
 
     // Commission the network
+#ifndef MIWI_AT_CMD
     Initialize_Demo(freezer_enable);
+#endif
 
     while(1)
     {
-        Run_Demo();
+#ifdef MIWI_AT_CMD		
+		if(main_state==0)
+		{
+		
+			ATCmdTask();		
+			if(!ATCmd_IsCfgMode())
+			{
+				main_state = 1;
+				Initialize_Demo(freezer_enable);
+			}
+		}
+		else
+		{
+			Run_Demo();
+			ATCmdTask();
+			
+		}
+#else	
+		Run_Demo();	
+#endif		
     }
 }
 

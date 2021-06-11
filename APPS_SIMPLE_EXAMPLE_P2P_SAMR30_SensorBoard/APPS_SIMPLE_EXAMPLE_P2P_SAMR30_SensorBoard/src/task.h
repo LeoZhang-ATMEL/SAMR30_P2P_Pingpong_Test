@@ -57,7 +57,9 @@
  *                                     // False : Using Network Freezer Feature
 *
 ********************************************************************/
+#ifndef MIWI_AT_CMD	//remove it	
 bool freezer_feature(void);
+#endif	//remove
 /*********************************************************************
 * Function: void Initialize_Demo(void)
 *

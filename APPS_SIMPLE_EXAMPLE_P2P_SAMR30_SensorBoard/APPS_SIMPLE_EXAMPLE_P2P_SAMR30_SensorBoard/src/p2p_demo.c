@@ -48,6 +48,10 @@
 #include "sio2host.h"
 #endif
 
+#ifdef MIWI_AT_CMD
+#include "atcmd.h"
+#endif
+
 #if defined(ENABLE_NETWORK_FREEZER)
 #include "pdsMemIds.h"
 #include "pdsDataServer.h"
@@ -81,7 +85,11 @@ bool test_back = false;
 *
 * Parameters:  handle - message handle, miwi_status_t status of data send
 ****************************************************************************/
+#ifdef MIWI_AT_CMD
+void dataConfcb(uint8_t handle, miwi_status_t status, uint8_t* msgPointer)
+#else
 static void dataConfcb(uint8_t handle, miwi_status_t status, uint8_t* msgPointer)
+#endif
 {
 
 	++TxNum;
@@ -119,7 +127,7 @@ void run_p2p_demo(void)
 			cb_data[0] = 0x00;
 			cb_role = true;
 			LED_Toggle(LED0);
-			LED_Toggle(EXT_PIN_PWM_0);
+			LED_Toggle(LED1);
             /* Function MiApp_SendData is used to broadcast a message with address as 0xFFFF */
             mac_ack_status = MiApp_SendData(SHORT_ADDR_LEN, (uint8_t *)&broadcastAddress, MAX_PAYLOAD, cb_data, msghandledemo++, false, dataConfcb);
             if (mac_ack_status)
@@ -149,10 +157,14 @@ void ReceivedDataIndication (RECEIVED_MESSAGE *ind)
 {
 	/* Toggle LED2 to indicate receiving a packet */
 	LED_Toggle(LED0);
-	LED_Toggle(EXT_PIN_PWM_0);
+	LED_Toggle(LED1);
 
 	if (rxMessage.Payload[0] == 0x00) {
 		test_back = true;
 	}
+
+#ifdef MIWI_AT_CMD
+	ATCmd_RendReceiveData();
+#endif
 }
 #endif
