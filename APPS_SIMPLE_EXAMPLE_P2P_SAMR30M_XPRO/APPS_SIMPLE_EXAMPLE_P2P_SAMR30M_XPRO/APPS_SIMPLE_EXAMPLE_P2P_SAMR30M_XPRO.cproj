@@ -546,7 +546,7 @@
       <Value>ENABLE_NETWORK_FREEZER</Value>
       <Value>MAIN_CLK_DFLL48M</Value>
       <Value>SPI_BAUDRATE_7500KBPS</Value>
-      <Value>OQPSK_CHINA_780</Value>
+      <Value>NOUSE_OQPSK_CHINA_780</Value>
       <Value>MIWI_AT_CMD</Value>
     </ListValues>
   </armgcc.compiler.symbols.DefSymbols>

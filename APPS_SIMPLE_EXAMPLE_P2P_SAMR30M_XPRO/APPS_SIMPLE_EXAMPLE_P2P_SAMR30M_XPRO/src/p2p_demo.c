@@ -105,6 +105,7 @@ static void dataConfcb(uint8_t handle, miwi_status_t status, uint8_t* msgPointer
 *********************************************************************/
 void run_p2p_demo(void)
 {
+#ifdef PINGPONG_TEST
 	if (test_back) {
 		test_back = 0;
 		uint16_t broadcastAddress = 0xFFFF;
@@ -112,6 +113,7 @@ void run_p2p_demo(void)
 		MiApp_SendData(SHORT_ADDR_LEN, (uint8_t *)&broadcastAddress, MAX_PAYLOAD, cb_data, msghandledemo++, true, dataConfcb);
 		return;
 	}
+#endif
 
     uint8_t PressedButton = ButtonPressed();
     switch( PressedButton )
@@ -123,11 +125,9 @@ void run_p2p_demo(void)
             /*******************************************************************/
             uint16_t broadcastAddress = 0xFFFF;
             bool mac_ack_status;
-
 			cb_data[0] = 0x00;
 			cb_role = true;
 			LED_Toggle(LED0);
-			LED_Toggle(EXT_PIN_PWM_0);
             /* Function MiApp_SendData is used to broadcast a message with address as 0xFFFF */
             mac_ack_status = MiApp_SendData(SHORT_ADDR_LEN, (uint8_t *)&broadcastAddress, MAX_PAYLOAD, cb_data, msghandledemo++, false, dataConfcb);
             if (mac_ack_status)
@@ -157,11 +157,12 @@ void ReceivedDataIndication (RECEIVED_MESSAGE *ind)
 {
 	/* Toggle LED2 to indicate receiving a packet */
 	LED_Toggle(LED0);
-	LED_Toggle(EXT_PIN_PWM_0);
+#ifdef PINGPONG_TEST
 
 	if (rxMessage.Payload[0] == 0x00) {
 		test_back = true;
 	}
+#endif
 
 #ifdef MIWI_AT_CMD
 	ATCmd_RendReceiveData();
