@@ -236,14 +236,18 @@ void PHY_Init(void)
 	phyWriteRegister(XAH_CTRL_0_REG, XAH_CTRL_0_reg_value);
 	XAH_CTRL_0_reg_value = phyReadRegister(XAH_CTRL_0_REG);
 #endif
-#ifndef OQPSK_CHINA_780
-	/* BPSK-40-ALT - Proprietary - alternative spreading code*/
-	phyWriteRegister(TRX_CTRL_2_REG, (1 << RX_SAFE_MODE) | (1 << ALT_SPECTRUM) |
-	(0 << BPSK_OQPSK) | (1 << SUB_MODE));
-#else
+#ifdef OQPSK_CHINA_780
 	/* OQPSK-1000 - 780 China Band, OQPSK-RC-1000-SCR-OFF */
 	phyWriteRegister(TRX_CTRL_2_REG, (1 << RX_SAFE_MODE) | (1 << ALT_SPECTRUM) |
 	(1 << BPSK_OQPSK) | (1 << SUB_MODE) | (2 << OQPSK_DATA_RATE));
+#elif OQPSK_SIN_250
+	/* OQPSK-250 - 780 China Band, OQPSK-RC-1000-SCR-OFF */
+	phyWriteRegister(TRX_CTRL_2_REG, (1 << RX_SAFE_MODE) | (1 << ALT_SPECTRUM) |
+	(1 << BPSK_OQPSK) | (1 << SUB_MODE) | (0 << OQPSK_DATA_RATE));
+#else
+	/* BPSK-40-ALT - Proprietary - alternative spreading code*/
+	phyWriteRegister(TRX_CTRL_2_REG, (1 << RX_SAFE_MODE) | (1 << ALT_SPECTRUM) |
+	(0 << BPSK_OQPSK) | (1 << SUB_MODE));
 #endif
 	phyWriteRegister(RF_CTRL_0_REG, PWR_BPSK_OFFSET);
 	/* Transmit power 11dbm for BPSK-40-ALT*/
@@ -494,10 +498,10 @@ static void phySetChannel(void)
 	}
 	else
 	{
-#ifndef OQPSK_CHINA_780
-		phyModulation = PHY_MOD_BPSK40_CHAN_N;
-#else
+#ifdef OQPSK_CHINA_780
 		phyModulation = ((0x00) | (1<<SUB_MODE) | (1 << BPSK_OQPSK) | (1 << ALT_SPECTRUM));
+#else
+		phyModulation = PHY_MOD_BPSK40_CHAN_N;
 #endif
 	}
 

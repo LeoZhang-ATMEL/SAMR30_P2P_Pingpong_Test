@@ -108,10 +108,10 @@
 
 #define PHY_MOD_BPSK20_CHAN_0   (0x00) //((0x00) || (0<<SUB_MODE) || (0 << BPSK_OQPSK) || (0 << ALT_SPECTRUM))
 #define PHY_MOD_BPSK40_CHAN_N	(0x04) //((0x00) || (1<<SUB_MODE) || (0 << BPSK_OQPSK) || (0 << ALT_SPECTRUM))
-#ifndef OQPSK_CHINA_780
-#define PWR_BPSK_OFFSET			(0x03)
-#else
+#ifdef OQPSK_CHINA_780
 #define PWR_BPSK_OFFSET			(0x02)
+#else
+#define PWR_BPSK_OFFSET			(0x03)
 #endif
 
 /* ANT_DIV */

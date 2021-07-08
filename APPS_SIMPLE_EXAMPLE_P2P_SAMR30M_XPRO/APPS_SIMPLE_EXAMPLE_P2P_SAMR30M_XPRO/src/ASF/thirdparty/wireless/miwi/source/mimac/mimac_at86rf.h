@@ -70,12 +70,12 @@
 	#define SYMBOLS_TO_TICKS(a)     ((a)*(16*ONE_MICRO_SECOND))
 	#define TICKS_TO_SYMBOLS(a)     ((a)/(16*ONE_MICRO_SECOND))
 	#elif (defined PHY_AT86RF212B )
-	#ifndef OQPSK_CHINA_780
-	#define SYMBOLS_TO_TICKS(a)     ((currentChannel == 0)?((a)*(50*ONE_MICRO_SECOND)):((a)*(25*ONE_MICRO_SECOND)))
-	#define TICKS_TO_SYMBOLS(a)     ((currentChannel == 0)?((a)/(50*ONE_MICRO_SECOND)):((a)/(25*ONE_MICRO_SECOND)))
-	#else
+	#ifdef OQPSK_CHINA_780
 	#define SYMBOLS_TO_TICKS(a)     ((currentChannel == 0)?((a)*(40*ONE_MICRO_SECOND)):((a)*(16*ONE_MICRO_SECOND)))//O-QPKSK-100,200,400: 40us, O-QPSK-250,500,1000:16us
 	#define TICKS_TO_SYMBOLS(a)     ((currentChannel == 0)?((a)/(40*ONE_MICRO_SECOND)):((a)/(16*ONE_MICRO_SECOND)))
+	#else
+	#define SYMBOLS_TO_TICKS(a)     ((currentChannel == 0)?((a)*(50*ONE_MICRO_SECOND)):((a)*(25*ONE_MICRO_SECOND)))
+	#define TICKS_TO_SYMBOLS(a)     ((currentChannel == 0)?((a)/(50*ONE_MICRO_SECOND)):((a)/(25*ONE_MICRO_SECOND)))
 	#endif
 	#endif
 
