@@ -181,7 +181,7 @@ void ReceivedDataIndication (RECEIVED_MESSAGE *ind)
 #endif
 
 #ifdef MIWI_AT_CMD
-	ATCmd_RendReceiveData();
+	ATCmd_SendReceiveData();
 #endif
 }
 #endif

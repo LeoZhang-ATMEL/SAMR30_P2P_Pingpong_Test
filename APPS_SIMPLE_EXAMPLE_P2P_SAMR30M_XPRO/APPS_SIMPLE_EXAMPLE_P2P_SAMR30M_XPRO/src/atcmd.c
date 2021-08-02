@@ -50,26 +50,33 @@ const char StrROLE[] = "role";
 const char StrSEND[] = "send";
 const char StrRECEIVE[] = "recv";
 const char StrRESET[] = "reset";
+const char StrEDSIZE[] = "edsize";
+const char StrMYINDEX[] = "myindex";
+const char StrEDS[] = "eds";
+const char StrEVENT[] = "event";
+const char StrERROR[] = "error";
+
 const char StrAOK[] = "\nAOK\n\r";
 const char StrAOK2[] = "AOK\r";
 const char StrERR[] = "\nERR\n\r";
 const char StrERR2[] = "ERR\r";
 const char StrREBOOT[] = "Reboot\n\r";
+
 #if defined(PROTOCOL_STAR)
  #if defined(PHY_AT86RF233)
- const char StrRET_VERSION[] = "\nver cmd05fw01d\n\r";	//SAMR21 Star
- const char StrRET_VERSION2[] = "ver cmd05fw01d\r";
+ const char StrRET_VERSION[] = "\nver cmd06fw01d\n\r";	//SAMR21 Star
+ const char StrRET_VERSION2[] = "ver cmd06fw01d\r";
  #else
- const char StrRET_VERSION[] = "\nver cmd05fw01b\n\r";	//SAMR30 Star
- const char StrRET_VERSION2[] = "ver cmd05fw01b\r";
+ const char StrRET_VERSION[] = "\nver cmd06fw01b\n\r";	//SAMR30 Star
+ const char StrRET_VERSION2[] = "ver cmd06fw01b\r";
  #endif
 #else
  #if defined(PHY_AT86RF233)
- const char StrRET_VERSION[] = "\nver cmd05fw01c\n\r";	//SAMR21 P2P
- const char StrRET_VERSION2[] = "ver cmd05fw01c\r";
+ const char StrRET_VERSION[] = "\nver cmd06fw01c\n\r";	//SAMR21 P2P
+ const char StrRET_VERSION2[] = "ver cmd06fw01c\r";
  #else
- const char StrRET_VERSION[] = "\nver cmd05fw01a\n\r";	//SAMR30 P2P
- const char StrRET_VERSION2[] = "ver cmd05fw01a\r";
+ const char StrRET_VERSION[] = "\nver cmd06fw01a\n\r";	//SAMR30 P2P
+ const char StrRET_VERSION2[] = "ver cmd06fw01a\r";
  #endif
 #endif
 
@@ -165,7 +172,52 @@ static void num2HexStr(uint8_t *pHex, uint8_t hexSize, uint8_t *pTxt, uint8_t tx
 		*pTxt++ = datal;
 	}
 }
-
+static void num2Hex(uint8_t num, uint8_t *pTxt, uint8_t* txtSize)
+{
+	if(!pTxt)
+		return;
+		
+	if(num < 10)
+	{
+		pTxt[0] = num + 48;
+		*txtSize = 1;
+	}
+	else if(num < 16)
+	{
+		pTxt[0] = num + 87;
+		*txtSize = 1;
+	}
+	else if(num < 0xa0)
+	{
+		if(num%16 < 10)
+		{
+			pTxt[0] = num/16 + 48;
+			pTxt[1] = num%16 + 48;
+			*txtSize = 2;
+		}
+		else
+		{
+			pTxt[0] = num/16 + 48;
+			pTxt[1] = num%16 + 87;
+			*txtSize = 2;
+		}
+	}
+	else
+	{
+		if(num%16 < 10)
+		{
+			pTxt[0] = num/16 + 87;
+			pTxt[1] = num%16 + 48;
+			*txtSize = 2;
+		}
+		else
+		{
+			pTxt[0] = num/16 + 87;
+			pTxt[1] = num%16 + 87;
+			*txtSize = 2;
+		}
+	}
+}
 static uint8_t char2byte(uint8_t charb)	//only used by str2byte()
 {
 	uint8_t a;
@@ -194,6 +246,7 @@ static uint8_t str2byte(uint8_t* str)
 	}
 	return bb;
 }
+
 /*****************************************************************************
 *****************************************************************************/
 static void ATCmd_ResponseAOK( void )
@@ -212,6 +265,228 @@ static void ATCmd_ResponseERR( void )
 }
 
 /*
+error r1
+r1: 0: connection failure
+	1: reconnection failure
+	2: link failure, BUSY, NO ACK, ...
+*/
+void ATCmd_SendErrorCode( uint8_t error_code )
+{
+	uint8_t tx_data[10];
+	uint8_t* ptx_data = tx_data;
+	uint8_t tx_data_len = 0;
+	uint8_t hex[2];
+	uint8_t hex_len;
+	
+	//beginning is adding '\n' good for PC terminal display
+	if(enable_echo)
+	{
+		*ptx_data++ = '\n';
+		tx_data_len++;
+	}
+	
+	//add command tag
+	*ptx_data++ = 'e';
+	*ptx_data++ = 'v';
+	*ptx_data++ = 'e';
+	*ptx_data++ = 'n';
+	*ptx_data++ = 't';
+	*ptx_data++ = ' ';
+	tx_data_len += 6;
+	
+	//add r1
+	num2Hex(error_code, hex, &hex_len);
+	if(hex_len == 1)
+	{
+		*ptx_data++ = hex[0];
+		tx_data_len ++;
+	}
+	else if(hex_len == 2)
+	{
+		*ptx_data++ = hex[0];
+		*ptx_data++ = hex[1];
+		tx_data_len += 2;
+	}
+	
+	//tail is adding 'r'
+	if(enable_echo)
+	{
+		*ptx_data++ = '\n';
+		*ptx_data++ = '\r';
+		tx_data_len += 2;
+	}
+	else
+	{
+		*ptx_data++ = '\r';	//0x13, ENTER
+		tx_data_len += 1;
+	}
+	
+	//send data out and initialize
+	sio2host_tx(tx_data, tx_data_len);
+	ATCmd_TxCmdInit();
+}
+/*
+event r1
+r1: 0: connection table change, for Star PAN or P2P all devices
+    1: shared connection table change, for Star End Devices(reserved now)
+*/
+void ATCmd_SendStatusChange( uint8_t event_code )
+{
+	uint8_t tx_data[10];
+	uint8_t* ptx_data = tx_data;
+	uint8_t tx_data_len = 0;
+	uint8_t hex[2];
+	uint8_t hex_len;
+	
+	//beginning is adding '\n' good for PC terminal display
+	if(enable_echo)
+	{
+		*ptx_data++ = '\n';
+		tx_data_len++;
+	}
+	
+	//add command tag
+	*ptx_data++ = 'e';
+	*ptx_data++ = 'v';
+	*ptx_data++ = 'e';
+	*ptx_data++ = 'n';
+	*ptx_data++ = 't';
+	*ptx_data++ = ' ';
+	tx_data_len += 6;
+	
+	//add r1
+	num2Hex(event_code, hex, &hex_len);
+	if(hex_len == 1)
+	{
+		*ptx_data++ = hex[0];
+		tx_data_len ++;
+	}
+	else if(hex_len == 2)
+	{
+		*ptx_data++ = hex[0];
+		*ptx_data++ = hex[1];
+		tx_data_len += 2;
+	}
+	
+	//tail is adding 'r'
+	if(enable_echo)
+	{
+		*ptx_data++ = '\n';
+		*ptx_data++ = '\r';
+		tx_data_len += 2;
+	}
+	else
+	{
+		*ptx_data++ = '\r';	//0x13, ENTER
+		tx_data_len += 1;
+	}
+	
+	//send data out and initialize
+	sio2host_tx(tx_data, tx_data_len);
+	ATCmd_TxCmdInit();
+}
+
+/*
+conn r1 r2 r3
+r1: index, valid from 0
+r2: 1: valid connection. 0: invalid connection
+r3: 8bytes long address
+*/
+void ATCmd_SendConnectionChange( uint8_t index )
+{
+	uint8_t* pStr1 = tx_cmd;
+	uint8_t str1Len = 0;
+	uint8_t hex[2];
+	uint8_t hex_len;
+	uint8_t conn_sts;
+
+	if(enable_echo)
+	{
+		*pStr1++ = '\n';
+		str1Len++;
+	}
+	*pStr1++ = 'c';	//add "conn"
+	*pStr1++ = 'o';
+	*pStr1++ = 'n';
+	*pStr1++ = 'n';
+	*pStr1++ = ' ';
+	str1Len += 5;
+	
+	//r1: connection index
+	num2Hex(index, hex, &hex_len);
+	if(hex_len == 1)
+	{
+		*pStr1++ = hex[0];
+		*pStr1++ = ' ';
+		str1Len += 2;
+	}
+	else if(hex_len == 2)
+	{
+		*pStr1++ = hex[0];
+		*pStr1++ = hex[1];
+		*pStr1++ = ' ';
+		str1Len += 3;
+	}
+	
+	//r2: connection valid/invalid, link status
+#if 0	//add link status
+	conn_sts = 0;
+ #if defined(PROTOCOL_STAR)
+ #if defined(ENABLE_LINK_STATUS)
+	conn_sts = connectionTable[index].link_status;
+ #endif
+ #endif
+	if( connectionTable[index].status.bits.isValid )
+		conn_sts |= 0x80;
+	num2Hex(conn_sts, hex, &hex_len);
+	if(hex_len == 1)
+	{
+		*pStr1++ = hex[0];
+		*pStr1++ = ' ';
+		str1Len += 2;
+	}
+	else
+	{
+		*pStr1++ = hex[0];
+		*pStr1++ = hex[1];
+		*pStr1++ = ' ';
+		str1Len += 3;
+	}
+#else
+	if( connectionTable[index].status.bits.isValid )
+	{
+		*pStr1++ = '1';	//'1' means valid
+		*pStr1++ = ' ';
+		str1Len += 2;
+	}
+	else
+	{
+		*pStr1++ = '0';	//'0' means invalid
+		*pStr1++ = ' ';
+		str1Len += 2;
+	}
+#endif	
+	
+	//r3: connection long address
+	num2HexStr(connectionTable[index].Address, MY_ADDRESS_LENGTH, pStr1, 2*MY_ADDRESS_LENGTH+1);
+	pStr1 += 2*MY_ADDRESS_LENGTH;
+	str1Len += 2*MY_ADDRESS_LENGTH;
+	
+	if(enable_echo)
+	{
+		*pStr1++ = '\n';
+		*pStr1 = '\r';
+		str1Len += 2;
+	}
+	else
+	{
+		*pStr1++ = '\r';	//0x13, ENTER
+		str1Len += 1;
+	}
+	sio2host_tx(tx_cmd, str1Len);
+	ATCmd_TxCmdInit();
+}
+/*
 recv r1 r2 r3 r4
 r1: 0: unicast&unsecured, 1: unicast&secured, 2: broadcast&unsecured, 3: broadcast&secured
 r2: rssi value
@@ -219,7 +494,7 @@ r3: address(8bytes long address or 2bytes short address
 r4: received data
 ** there is no connection index or received data size as parameters **
 */
-void ATCmd_RendReceiveData( void )
+void ATCmd_SendReceiveData( void )
 {
 	uint8_t* ptx_cmd = tx_cmd;
 	uint16_t tx_cmd_len = 0;
@@ -311,10 +586,11 @@ void ATCmd_RendReceiveData( void )
 void ATCmd_ProcessCommand( void )
 {
 	uint8_t temp, index, data_size;
-	uint8_t str1[100];	//can be replaced by tx_cmd[] global array
+	uint8_t str1[APP_TX_CMD_SIZE];	//can be replaced by tx_cmd[] global array
 	uint8_t* pStr1;
 	uint8_t str1Len;
 	uint8_t pana[2];
+	uint8_t conn_sts;
 
 //process this command
 	switch(ptag1[0])
@@ -434,19 +710,23 @@ void ATCmd_ProcessCommand( void )
 				*pStr1++ = '\n';
 				str1Len++;
 				}
-			*pStr1++ = 'c';	//add "channel"
-			*pStr1++ = 'h';
-			*pStr1++ = 'a';
-			*pStr1++ = 'n';
-			*pStr1++ = 'n';
-			*pStr1++ = 'e';
-			*pStr1++ = 'l';
-			*pStr1++ = ' ';
-			str1Len += 8;
-			//channel2BCDStr(myChannel, pStr1, &temp);
-			channel2HexStr(myChannel, pStr1, &temp);
-			pStr1 += temp;
-			str1Len += temp;
+				*pStr1++ = 'c';	//add "channel"
+				*pStr1++ = 'h';
+				*pStr1++ = 'a';
+				*pStr1++ = 'n';
+				*pStr1++ = 'n';
+				*pStr1++ = 'e';
+				*pStr1++ = 'l';
+				*pStr1++ = ' ';
+				str1Len += 8;
+			
+				if(!at_cfg_mode)	//afer exiting from config mode, use API to read channel; in config mode, just use variable myChannel
+					MiApp_Get(CHANNEL, &myChannel);
+				//channel2BCDStr(myChannel, pStr1, &temp);
+				channel2HexStr(myChannel, pStr1, &temp);
+				pStr1 += temp;
+				str1Len += temp;
+			
 				if(enable_echo)
 				{
 				*pStr1++ = '\n';
@@ -470,16 +750,20 @@ void ATCmd_ProcessCommand( void )
 				*pStr1++ = '\n';
 				str1Len++;
 				}
-			*pStr1++ = 'p';	//add "pan"
-			*pStr1++ = 'a';
-			*pStr1++ = 'n';
-			*pStr1++ = ' ';
-			str1Len += 4;
-			pana[0] = (uint8_t)(myPAN_ID>>8);
-			pana[1] = (uint8_t)myPAN_ID;
-			num2HexStr(pana, 2, pStr1, 5);
-			pStr1 += 4;
-			str1Len += 4;
+				*pStr1++ = 'p';	//add "pan"
+				*pStr1++ = 'a';
+				*pStr1++ = 'n';
+				*pStr1++ = ' ';
+				str1Len += 4;
+				
+				if(!at_cfg_mode)	//afer exiting from config mode, use API to read PAN ID; in config mode, just use variable myPAN_ID
+					MiApp_Get(PANID, &myPAN_ID);
+				pana[0] = (uint8_t)(myPAN_ID>>8);
+				pana[1] = (uint8_t)myPAN_ID;
+				num2HexStr(pana, 2, pStr1, 5);
+				pStr1 += 4;
+				str1Len += 4;
+				
 				if(enable_echo)
 				{
 				*pStr1++ = '\n';
@@ -596,19 +880,62 @@ void ATCmd_ProcessCommand( void )
 					*pStr1++ = ' ';
 					str1Len += 5;
 			
-					if( connectionTable[temp].status.bits.isValid )
+					//r1: connection index
+					num2Hex(temp, pana, &data_size);
+					if(data_size == 1)
 					{
-					*pStr1++ = '1';	//'1' means valid
-					*pStr1++ = ' ';
-					str1Len += 2;
+						*pStr1++ = pana[0];
+						*pStr1++ = ' ';
+						str1Len += 2;
+					}
+					else if(data_size == 2)
+					{
+						*pStr1++ = pana[0];
+						*pStr1++ = pana[1];
+						*pStr1++ = ' ';
+						str1Len += 3;
+					}
+			
+					//r2: connection valid/invalid, link status
+#if 0	//add link status					
+					conn_sts = 0;
+ #if defined(PROTOCOL_STAR)
+ #if defined(ENABLE_LINK_STATUS)					
+					conn_sts = connectionTable[temp].link_status;
+ #endif
+ #endif
+					if( connectionTable[temp].status.bits.isValid )
+						conn_sts |= 0x80;
+					num2Hex(conn_sts, pana, &data_size);
+					if(data_size == 1)
+					{
+						*pStr1++ = pana[0];
+						*pStr1++ = ' ';
+						str1Len += 2;
 					}
 					else
 					{
-					*pStr1++ = '0';	//'0' means invalid
-					*pStr1++ = ' ';
-					str1Len += 2;
+						*pStr1++ = pana[0];
+						*pStr1++ = pana[1];
+						*pStr1++ = ' ';
+						str1Len += 3;
 					}
+#else
+					if( connectionTable[temp].status.bits.isValid )
+					{
+						*pStr1++ = '1';	//'1' means valid
+						*pStr1++ = ' ';
+						str1Len += 2;
+					}
+					else
+					{
+						*pStr1++ = '0';	//'0' means invalid
+						*pStr1++ = ' ';
+						str1Len += 2;
+					}
+#endif					
 				
+					//r3: connection IEEE long address
 					num2HexStr(connectionTable[temp].Address, MY_ADDRESS_LENGTH, pStr1, 2*MY_ADDRESS_LENGTH+1);
 					pStr1 += 2*MY_ADDRESS_LENGTH;
 					str1Len += 2*MY_ADDRESS_LENGTH;
@@ -633,6 +960,180 @@ void ATCmd_ProcessCommand( void )
 				sio2host_tx((uint8_t *)StrRET_VERSION, sizeof(StrRET_VERSION));
 				else
 				sio2host_tx((uint8_t *)StrRET_VERSION2, sizeof(StrRET_VERSION2));
+			}
+			else if(!at_cfg_mode && (strcmp(StrEDSIZE, (const char*)ptag2) == 0))	//command: get edsize
+			{
+#if defined(PROTOCOL_STAR)
+				if(role == END_DEVICE)
+				{
+					memset(str1, 0, sizeof(str1));
+					pStr1 = str1;
+					str1Len = 0;
+					if(enable_echo)
+					{
+						*pStr1++ = '\n';
+						str1Len++;
+					}
+					*pStr1++ = 'e';	//add "edsize"
+					*pStr1++ = 'd';
+					*pStr1++ = 's';
+					*pStr1++ = 'i';
+					*pStr1++ = 'z';
+					*pStr1++ = 'e';
+					*pStr1++ = ' ';
+					str1Len += 7;
+					
+					num2Hex(end_nodes, pStr1, &temp);
+					if(temp == 1)
+					{
+						pStr1++;
+						str1Len ++;
+					}
+					else
+					{
+						pStr1 += 2;
+						str1Len += 2;
+					}
+					if(enable_echo)
+					{
+						*pStr1++ = '\n';
+						*pStr1 = '\r';
+						str1Len += 2;
+					}
+					else
+					{
+						*pStr1++ = '\r';	//0x13, ENTER
+						str1Len += 1;
+					}
+					sio2host_tx(str1, str1Len);
+				}
+				else
+				{
+					ATCmd_ResponseERR();
+				}
+#else
+				ATCmd_ResponseERR();
+#endif				
+			}
+			else if(!at_cfg_mode && (strcmp(StrMYINDEX, (const char*)ptag2) == 0))	//command: get myindex
+			{
+#if defined(PROTOCOL_STAR)
+				if(role == END_DEVICE)
+				{
+					memset(str1, 0, sizeof(str1));
+					pStr1 = str1;
+					str1Len = 0;
+					if(enable_echo)
+					{
+						*pStr1++ = '\n';
+						str1Len++;
+					}
+					*pStr1++ = 'm';	//add "edsize"
+					*pStr1++ = 'y';
+					*pStr1++ = 'i';
+					*pStr1++ = 'n';
+					*pStr1++ = 'd';
+					*pStr1++ = 'e';
+					*pStr1++ = 'x';
+					*pStr1++ = ' ';
+					str1Len += 8;
+					
+					num2Hex(myConnectionIndex_in_PanCo, pStr1, &temp);
+					if(temp == 1)
+					{
+						pStr1++;
+						str1Len ++;
+					}
+					else
+					{
+						pStr1 += 2;
+						str1Len += 2;
+					}
+					if(enable_echo)
+					{
+						*pStr1++ = '\n';
+						*pStr1 = '\r';
+						str1Len += 2;
+					}
+					else
+					{
+						*pStr1++ = '\r';	//0x13, ENTER
+						str1Len += 1;
+					}
+					sio2host_tx(str1, str1Len);
+				}
+				else
+				{
+					ATCmd_ResponseERR();
+				}
+#else
+				ATCmd_ResponseERR();
+#endif
+			}
+			else if(!at_cfg_mode && (strcmp(StrEDS, (const char*)ptag2) == 0))	//command: get eds r1 r2
+			//r1 is start index of eds reading, r2 is end index of eds reading.
+			{
+#if defined(PROTOCOL_STAR)
+				if(role == END_DEVICE)
+				{
+					if(ptag3 && ptag4)
+					{
+						temp = str2byte(ptag3);	//get start index of eds reading
+						data_size = str2byte(ptag4);	//get end index of eds reading
+						if(temp > data_size || temp >= end_nodes || data_size >= end_nodes)
+							ATCmd_ResponseERR();
+						else
+						{
+						memset(str1, 0, sizeof(str1));
+						pStr1 = str1;
+						str1Len = 0;
+						if(enable_echo)
+						{
+							*pStr1++ = '\n';
+							str1Len++;
+						}
+						*pStr1++ = 'e';	//add "eds"
+						*pStr1++ = 'd';
+						*pStr1++ = 's';
+						*pStr1++ = ' ';
+						str1Len += 4;
+						
+						for(index=temp; index<=data_size; index++)
+						{
+							num2HexStr(&END_DEVICES_Short_Address[index].Address[0], 3, pStr1, 6);
+							pStr1+=6;
+							str1Len += 6;
+							num2HexStr(&END_DEVICES_Short_Address[index].connection_slot, 1, pStr1, 2);
+							pStr1+=2;
+							str1Len += 2;
+						}
+						
+						if(enable_echo)
+						{
+							*pStr1++ = '\n';
+							*pStr1 = '\r';
+							str1Len += 2;
+						}
+						else
+						{
+							*pStr1++ = '\r';	//0x13, ENTER
+							str1Len += 1;
+						}
+						sio2host_tx(str1, str1Len);
+						}	//start index, end index, end_nodes value check
+					}
+					else //r1, r2 parameters is incomplete
+					{
+						ATCmd_ResponseERR();
+					}
+				}
+				else
+				{
+					ATCmd_ResponseERR();
+				}
+#else
+				ATCmd_ResponseERR();
+#endif				
 			}
 			else
 			{
@@ -690,6 +1191,32 @@ void ATCmd_ProcessCommand( void )
 					{
 						ATCmd_ResponseERR();
 					}
+				}
+				else if(temp == 6)	//unicast, Star edx -> edy only
+				{
+#if defined(PROTOCOL_STAR)
+					if(role == END_DEVICE)
+					{
+						uint8_t desShortAddress[3];
+						ATCmd_ResponseAOK();
+						pStr1 = ptag2;
+						desShortAddress[0] = str2byte(pStr1);
+						pStr1+=2;
+						desShortAddress[1] = str2byte(pStr1);
+						pStr1+=2;
+						desShortAddress[2] = str2byte(pStr1);
+						if(!data_size)	//if r2=0, count r3 bytes and use counted number
+							MiApp_SendData(3, desShortAddress, strlen(ptag4), ptag4, msghandledemo++, true, dataConfcb);
+						else
+							MiApp_SendData(3, desShortAddress, data_size, ptag4, msghandledemo++, true, dataConfcb);
+					}
+					else
+					{
+						ATCmd_ResponseERR();
+					}
+#else
+					ATCmd_ResponseERR();
+#endif
 				}
 				else if(temp == 16)	//unicast, by 8bytes IEEE long address
 				{
@@ -872,7 +1399,7 @@ void ATCmdTask(void)
 	if(reboot_reported == 0)
 	{
 		reboot_reported = 1;
-		sio2host_tx((uint8_t *)StrREBOOT, sizeof(StrREBOOT));
+		sio2host_tx((uint8_t *)StrREBOOT, sizeof(StrAOK));
 	}
 	if ((bytes = sio2host_rx(at_rx_data, AT_RX_BUF_SIZE)) > 0) {
 		if(enable_echo)

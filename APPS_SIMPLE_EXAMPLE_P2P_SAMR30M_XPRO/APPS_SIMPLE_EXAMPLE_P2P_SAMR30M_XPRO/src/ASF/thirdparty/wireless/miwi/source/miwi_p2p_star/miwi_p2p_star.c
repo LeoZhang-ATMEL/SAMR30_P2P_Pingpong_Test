@@ -41,7 +41,9 @@
 #include "miwi_config.h"
 /* MiWi Protocol layer configuration file */
 #include "miwi_config_p2p.h"
-
+#ifdef MIWI_AT_CMD
+#include "atcmd.h"
+#endif
 #include "miwi_p2p_star.h"
 #include "mimac_at86rf.h"
 #include "mimem.h"
@@ -1310,6 +1312,9 @@ void MiApp_RemoveConnection(INPUT uint8_t ConnectionIndex)
 #if defined(ENABLE_NETWORK_FREEZER)
             PDS_Store(PDS_CONNECTION_TABLE_ID);
 #endif
+#ifdef MIWI_AT_CMD
+			ATCmd_SendConnectionChange(i);
+#endif
         }
     }
     else if( miwiDefaultRomOrRamParams->ConnectionTable[ConnectionIndex].status.bits.isValid )
@@ -1320,6 +1325,9 @@ void MiApp_RemoveConnection(INPUT uint8_t ConnectionIndex)
 
 #if defined(ENABLE_NETWORK_FREEZER)
        PDS_Store(PDS_CONNECTION_TABLE_ID);
+#endif
+#ifdef MIWI_AT_CMD
+		ATCmd_SendConnectionChange(ConnectionIndex);
 #endif
     }
 }
@@ -1369,6 +1377,9 @@ bool MiApp_ResyncConnection(INPUT uint8_t ConnectionIndex, INPUT uint32_t Channe
 bool MiApp_SendData(uint8_t addr_len, uint8_t *addr, uint8_t msglen, uint8_t *msgpointer, uint8_t msghandle,
                                                               bool ackReq, DataConf_callback_t ConfCallback)
 {
+#ifdef PINGPONG_TEST
+	PORT->Group[0].OUTTGL.reg = 1 << 18;
+#endif
 	P2PStarDataFrame_t *dataFramePtr = NULL;
 	if (IN_NETWORK_STATE == p2pStarCurrentState &&  MAX_PAYLOAD >= msglen)
 	{
@@ -1648,6 +1659,9 @@ uint8_t AddConnection(uint8_t capacityInfo)
             IncomingFrameCounter[connectionSlot].Val = 0;
 #endif
         LatestConnection = connectionSlot;
+#ifdef MIWI_AT_CMD		
+		ATCmd_SendConnectionChange(connectionSlot);
+#endif		
     }
     conn_size = Total_Connections();
 #if defined (ENABLE_NETWORK_FREEZER)
@@ -2293,6 +2307,9 @@ void frameParse(MAC_RECEIVED_PACKET *macRxPacket)
                             PDS_Store(PDS_CONNECTION_TABLE_ID);
 #endif
                             dataPtr[dataLen++] = STATUS_SUCCESS;
+#ifdef MIWI_AT_CMD
+							ATCmd_SendConnectionChange(i);
+#endif
 
                             break;
                         }

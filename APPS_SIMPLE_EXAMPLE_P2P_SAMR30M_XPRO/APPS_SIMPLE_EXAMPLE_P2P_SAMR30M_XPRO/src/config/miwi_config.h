@@ -108,7 +108,7 @@
 // P2P_CONNECTION_SIZE defines the maximum P2P connections that this 
 // device allowes at the same time. 
 /*********************************************************************/
-#define CONNECTION_SIZE             5
+#define CONNECTION_SIZE             20
 
 
 /*********************************************************************/
